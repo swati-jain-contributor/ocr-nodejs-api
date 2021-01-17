@@ -5,7 +5,14 @@ const multer = require("multer");
 const bodyParser = require('body-parser');
 const tesseractController = require('./tesseract.controller');
 
-const port = 3000;
+const port = 3001;
+const { createWorker } = require('tesseract.js');
+const path = require('path');
+
+const worker = createWorker({
+  langPath: path.join(__dirname, '', 'lang-data'), 
+  logger: m => console.log(m),
+});
 
 // app.use(
 //     fileUpload());
@@ -42,18 +49,29 @@ app.get('', (req, res) => {
 
 app.post('/read-image', upload.single('file'),(req, res) => {
     console.log('Body: ', req.file);
-    tesseractController
-        .recognizeImage(req.file.path)
-        .then((result) => {
-            res
+    (async () => {
+        await worker.load();
+        await worker.loadLanguage('eng');
+        await worker.initialize('eng');
+        const { data: { text } } = await worker.recognize(req.file.path);
+        console.log(text);
+        res
                 .status(200)
-                .send(result)
-        })
-        .catch((err) => {
-            res
-                .status(500)
-                .send(err);
-        });
+                .send(text);
+      })();
+      
+    // tesseractController
+    //     .recognizeImage(req.file.path)
+    //     .then((result) => {
+    //         res
+    //             .status(200)
+    //             .send(result)
+    //     })
+    //     .catch((err) => {
+    //         res
+    //             .status(500)
+    //             .send(err);
+    //     });
 });
 
 app.get('', (req, res) => {
