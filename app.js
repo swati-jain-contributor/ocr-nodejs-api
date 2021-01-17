@@ -54,8 +54,9 @@ let data="";
 		console.log('kjhjkh');
     data += chunk;
   }).on('end', () => {
-	 var buf = Buffer.from(data, 'base64');
-fs.writeFile('image.png', buf, function(){});
+//	 var buf = Buffer.from(data, 'base64');
+//	  var img = "data:image/png;base64,"+data;
+fs.writeFile('image.png', data,'binary', function(){});
    console.log('Body: ', path.join(__dirname, 'image.png'));
     (async () => {
         await worker.load();
