@@ -1,4 +1,5 @@
 const express = require('express');
+var fs = require('fs');
 const app = express();
 const cors = require('cors');
 const multer = require("multer");
@@ -48,17 +49,38 @@ app.get('', (req, res) => {
 });
 
 app.post('/read-image', upload.single('file'),(req, res) => {
-    console.log('Body: ', req.file);
+let data="";
+	req.on('data', chunk => {
+		console.log('kjhjkh');
+    data += chunk;
+  }).on('end', () => {
+	 var buf = Buffer.from(data, 'base64');
+fs.writeFile('image.png', buf, function(){});
+   console.log('Body: ', path.join(__dirname, 'image.png'));
     (async () => {
         await worker.load();
         await worker.loadLanguage('eng');
         await worker.initialize('eng');
-        const { data: { text } } = await worker.recognize(req.file.path);
+        const { data: { text } } = await worker.recognize(path.join(__dirname, 'image.png'));
         console.log(text);
         res
                 .status(200)
                 .send(text);
       })();
+
+});
+
+//    console.log('Body: ', req.body.length);
+  //  (async () => {
+    //    await worker.load();
+    //    await worker.loadLanguage('eng');
+    //    await worker.initialize('eng');
+     //   const { data: { text } } = await worker.recognize(req.body);
+     //   console.log(text);
+     //   res
+     //           .status(200)
+      //          .send(text);
+    //  })();
       
     // tesseractController
     //     .recognizeImage(req.file.path)
