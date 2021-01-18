@@ -20,9 +20,9 @@ const worker = createWorker({
 // enable CORS
 app.use(cors());
 // parse application/json
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({extended: true}));
+//app.use(bodyParser.urlencoded({extended: true}));
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -32,13 +32,13 @@ var storage = multer.diskStorage({
        cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
     }
  });
- var upload = multer({ dest: 'upload/'});
+ //var upload = multer({ dest: 'upload/'});
 
- app.use('/uploads', express.static('uploads'));
+ //app.use('/uploads', express.static('uploads'));
 
-// app.use(express.json({limit: '50mb'}));
-// app.use(bodyParser.urlencoded({ extended: false,limit: "50mb" }));
-// app.use(bodyParser.json({limit: "50mb"}));
+ app.use(express.json({limit: '50mb'}));
+ app.use(bodyParser.urlencoded({ extended: false,limit: "50mb" }));
+ app.use(bodyParser.json({limit: "50mb"}));
 // app.use(express.urlencoded({
 //     extended: true,
 //     limit: '50mb'
@@ -48,23 +48,26 @@ app.get('', (req, res) => {
     res.send('Send a POST request to /read-image. For more information, read the readme.md file at this project. =)');
 });
 
-app.post('/read-image', upload.single('file'),(req, res) => {
-let data=[];
-	req.on('data', chunk => {
-		console.log('kjhjkh');
-    data.push(chunk);
-  }).on('end', () => {
-var buf=	  Buffer.from(data).toString('base64');
+app.post('/read-image', (request, res) => {
+//let data=[];
+//	req.on('data', chunk => {
+//		console.log('kjhjkh');
+ //   data.push(chunk);
+ // }).on('end', () => {
+//var buf=	  Buffer.from(data); 
 //var buf=	  Buffer.concat(data).toString();
-//	 var buf = Buffer.from(data, 'base64');
+//	 var buf = Buffer.from(data, 'binary').toString('base64');
 //	  var img = "data:image/png;base64,"+data;
-fs.writeFile('image.png', data.join() ,'binary', function(){});
-   console.log('Body: ', buf);
+//fs.writeFile('image.png', buf,'binary',  function(){});
+   console.log('Body: ', request.body.file.length);
+	fs.writeFile("out.png", request.body.file, 'base64', function(err) {
+  console.log(err);
+});
     (async () => {
         await worker.load();
         await worker.loadLanguage('eng');
         await worker.initialize('eng');
-        const { data: { text } } = await worker.recognize(path.join(__dirname, 'image.png'));
+        const { data: { text } } = await worker.recognize("out.png");
         console.log(text);
         res
                 .status(200)
@@ -97,7 +100,7 @@ fs.writeFile('image.png', data.join() ,'binary', function(){});
     //             .status(500)
     //             .send(err);
     //     });
-});
+//});
 
 app.get('', (req, res) => {
     res.send('Hello World!');
