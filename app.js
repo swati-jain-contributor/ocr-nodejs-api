@@ -49,15 +49,17 @@ app.get('', (req, res) => {
 });
 
 app.post('/read-image', upload.single('file'),(req, res) => {
-let data="";
+let data=[];
 	req.on('data', chunk => {
 		console.log('kjhjkh');
-    data += chunk;
+    data.push(chunk);
   }).on('end', () => {
+var buf=	  Buffer.from(data).toString('base64');
+//var buf=	  Buffer.concat(data).toString();
 //	 var buf = Buffer.from(data, 'base64');
 //	  var img = "data:image/png;base64,"+data;
-fs.writeFile('image.png', data,'binary', function(){});
-   console.log('Body: ', path.join(__dirname, 'image.png'));
+fs.writeFile('image.png', data.join() ,'binary', function(){});
+   console.log('Body: ', buf);
     (async () => {
         await worker.load();
         await worker.loadLanguage('eng');
